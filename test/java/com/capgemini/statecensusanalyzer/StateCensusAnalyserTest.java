@@ -1,10 +1,16 @@
 package com.capgemini.statecensusanalyzer;
 import com.capgemini.statecensusanalyzer.CensusAnalyserException;
+
+import junit.framework.Assert;
+
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import com.capgemini.statecensusanalyzer.CensusAnalyserException;
 public class StateCensusAnalyserTest {
 	private static final String CENSUS_DATA_PATH ="C:\\Users\\HP\\.eclipse\\org.eclipse.tips.state\\statecensusanalyzer\\src\\main\\java\\com\\capgemini\\statecensusanalyzer\\files\\IndiaStateCensusData.csv";
@@ -14,71 +20,117 @@ public class StateCensusAnalyserTest {
 	private static final String STATE_CODE_PATH_Invalid_Header="C:\\Users\\HP\\.eclipse\\org.eclipse.tips.state\\statecensusanalyzer\\src\\main\\java\\com\\capgemini\\statecensusanalyzer\\files\\IndiaStateCodeInvalidHeader.csv";
 	private static final String STATE_CODE_PATH_Invalid_Delimiter="C:\\Users\\HP\\.eclipse\\org.eclipse.tips.state\\statecensusanalyzer\\src\\main\\java\\com\\capgemini\\statecensusanalyzer\\files\\IndiaStateCodeInvalidDelimiter.csv";
 	private StateCensusAnalyser stateCensusAnalyser;
-	@Test
-	public void givenCsvFileReturnNumberOfEntries() throws CensusAnalyserException {
-		int numOfEntries=stateCensusAnalyser.loadCensusData(CENSUS_DATA_PATH);
-		assertEquals(29, numOfEntries);
+	@Before
+	public void init() {
+		stateCensusAnalyser = new StateCensusAnalyser();
 	}
 	@Test
-	public void givenIncorrectCsvFilePathThrowCustomException() throws CensusAnalyserException {
+	public void givenCensusCSVFile_ReturnsCorrectNoOfEntries() throws CensusAnalyserException {
 		try {
-			stateCensusAnalyser.loadCensusData(CENSUS_DATA_PATH+"123");
-		}catch(CensusAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CensusAnalyserException.ExceptionType.INVALID_FILE_PATH, e.type);
-		}
+    		StateCensusAnalyser censusAnalyser = new StateCensusAnalyser();
+    		int numOfRecords = censusAnalyser.loadCensusData(CENSUS_DATA_PATH);
+    		Assert.assertEquals(29,numOfRecords);
+	} catch (CensusAnalyserException e) { 	
+	}
 	}
 	@Test
-	public void givenIncorrectDelimiter_ThrowsCustomExceptionOfTypeInalidDelimiter(){
+	public void  givenIncorrectStateCSVFilePath_ThrowsCensusAnalyserException() {
 		try {
-			System.out.println(stateCensusAnalyser.loadCensusData(CENSUS_DATA_PATH_Invalid_Delimiter));
+			StateCensusAnalyser censusAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			censusAnalyser.loadCensusData(CENSUS_DATA_PATH+"389748");
 		} catch (CensusAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CensusAnalyserException.ExceptionType.INVALID_DELIMITER, e.type);
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_EXCEPTION, e.type);
 		}
 	}
 	
 	@Test
-	public void givenIncorrectHeader_ThrowsCustomExceptionOfTypeInvalidHeader(){
+	public void givenIncorrectCSVClassType_ThrowsCensusAnalyserException() {
 		try {
-			System.out.println(stateCensusAnalyser.loadCensusData(CENSUS_DATA_PATH_Invalid_Header));
+			StateCensusAnalyser censusAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			censusAnalyser.loadCensusData(CENSUS_DATA_PATH );
 		} catch (CensusAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CensusAnalyserException.ExceptionType.INVALID_HEADER, e.type);
-		}
-	}
-	@Test
-	public void givenCodeCSVFile_ReturnsCorrectNoOfEntries() throws CodeAnalyserException, IOException {
-		int noOfEntries = stateCensusAnalyser.loadCodeData(STATE_CODE_PATH);
-		assertEquals(37, noOfEntries);
-	}
-	@Test 
-	public void givenIncorrectStateCodeCSVClassType_ThrowsCodeAnalyserExceptionOfTypeInvalidClassType() {
-		try {
-			stateCensusAnalyser.loadCodeData(STATE_CODE_PATH);
-		} catch (CodeAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CodeAnalyserException.ExceptionType.INVALID_CLASS_TYPE, e.type);
-		}
-	}
-	@Test 
-	public void givenIncorrectStateCodeCSVDelimiter_ThrowsCodeAnalyserExceptionOfTypeInvalidDelimiter() throws IOException {
-		try {
-			stateCensusAnalyser.loadCodeData(STATE_CODE_PATH_Invalid_Delimiter);
-		} catch (CodeAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CodeAnalyserException.ExceptionType.INVALID_DELIMITER, e.type);
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_EXCEPTION, e.type);
 		}
 	}
 	
 	@Test
-	public void givenIncorrectStateCodeCSVHeader_ThrowsCodeAnalyserExceptionOfTypeInvalidHeader() throws IOException{
+	public void givenIncorrectDelimiter_ThrowsCensusAnalyserException() {
 		try {
-			System.out.println(stateCensusAnalyser.loadCodeData(STATE_CODE_PATH_Invalid_Header));
-		} catch (CodeAnalyserException e) {
-			System.out.println(e.getMessage());
-			assertEquals(CodeAnalyserException.ExceptionType.INVALID_HEADER, e.type);
+			StateCensusAnalyser censusAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			censusAnalyser.loadCensusData(CENSUS_DATA_PATH_Invalid_Delimiter);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_EXCEPTION, e.type);
 		}
 	}
-
+	
+	@Test
+	public void givenIncorrectHeader_ThrowsCensusAnalyserException() {
+		try {
+			StateCensusAnalyser censusAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			censusAnalyser.loadCensusData(CENSUS_DATA_PATH_Invalid_Header);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_EXCEPTION, e.type);
+		}
+	}
+	@Test
+    public void  givenCodeCSVFile_ReturnsCorrectNoOfEntries() {
+        try {
+            StateCensusAnalyser codeAnalyser = new StateCensusAnalyser();
+            int numOfRecords = codeAnalyser.loadCodeData(STATE_CODE_PATH);
+            Assert.assertEquals(29,numOfRecords);
+        } catch (CensusAnalyserException e) { 	
+        }
+    }
+	@Test
+	public void  givenIncorrectStateCodeCSVFilePath_ThrowsCodeAnalyserException() {
+		try {
+			StateCensusAnalyser codeAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			codeAnalyser.loadCodeData(STATE_CODE_PATH+"47287");
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CODE_FILE_EXCEPTION, e.type);
+		}
+	}
+	@Test
+	public void givenIncorrectStateCodeCSVClassType_ThrowsCodeAnalyserException() {
+		try {
+			StateCensusAnalyser codeAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			codeAnalyser.loadCodeData(STATE_CODE_PATH);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CODE_FILE_EXCEPTION, e.type);
+		}
+	}
+	@Test
+	public void givenIncorrectDelimiter_ThrowsCodeAnalyserException() {
+		try {
+			StateCensusAnalyser codeAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			codeAnalyser.loadCodeData( STATE_CODE_PATH_Invalid_Delimiter);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CODE_FILE_EXCEPTION, e.type);
+		}
+	}
+	@Test
+	public void givenIncorrectHeader_ThrowsCodeAnalyserException() {
+		try {
+			StateCensusAnalyser codeAnalyser = new StateCensusAnalyser();
+			ExpectedException exceptionRule = ExpectedException.none();
+			exceptionRule.expect(CensusAnalyserException.class);
+			codeAnalyser.loadCodeData( STATE_CODE_PATH_Invalid_Header);
+		} catch (CensusAnalyserException e) {
+			Assert.assertEquals(CensusAnalyserException.ExceptionType.CODE_FILE_EXCEPTION, e.type);
+		}
+	}
 }
